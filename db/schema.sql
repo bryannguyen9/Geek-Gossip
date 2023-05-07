@@ -1,0 +1,3 @@
+DROP DATABASE IF EXISTS geeks_db;
+
+CREATE DATABASE geeks_db;
