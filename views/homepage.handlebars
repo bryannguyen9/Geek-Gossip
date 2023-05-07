@@ -1,4 +1,13 @@
-<!-- need to include buttons for home, dashboard, and login/logout button -->
+<!-- nav bar -->
+<div class="navbar">
+  <a href="{{dashboard_link}}">Dashboard</a>
+  {{#if logged_in}}
+    <a href="/logout">Logout</a>
+  {{else}}
+    <a href="{{login_link}}">Login</a>
+  {{/if}}
+</div>
+
 <!-- Loop over each object in the post array -->
 {{#each post as |post| }}
 <div class="row mb-4 post">
