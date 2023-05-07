@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { User } = require('../../models');
+const withAuth = require('../../utils/auth');
 
 router.post('/login', async (req, res) => {
   try {
@@ -36,7 +37,27 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.post('/logout', (req, res) => {
+// Signup route
+router.post('/signup', async (req, res) => {
+  try {
+    const userData = await User.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+    });
+
+    req.session.save(() => {
+      req.session.user_id = userData.id;
+      req.session.logged_in = true;
+
+      res.json({ user: userData, message: 'You are now signed up and logged in!' });
+    });
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.post('/logout', withAuth, (req, res) => {
   if (req.session.logged_in) {
     // Remove the session variables
     req.session.destroy(() => {
@@ -48,3 +69,7 @@ router.post('/logout', (req, res) => {
 });
 
 module.exports = router;
+
+//create
+//login
+//logout

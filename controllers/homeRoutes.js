@@ -1,9 +1,14 @@
 const router = require('express').Router();
 const { Post, User } = require('../models');
+const withAuth = require('../utils/auth');
+const apiRoutes = require('./api');
+const postRoutes = require('./postRoute');
+const moment = require('moment');
 
+// Handler for the home page that always renders the homepage template
 router.get('/', async (req, res) => {
   try {
-    // Get all projects and JOIN with user data
+    // Get all posts and JOIN with user data
     const postData = await Post.findAll({
       include: [
         {
@@ -12,33 +17,34 @@ router.get('/', async (req, res) => {
         },
       ],
     });
+  
 
     // Serialize data so the template can read it
-    const posts = postData.map((post) => post.get({ plain: true }));
+    const posts = postData.map((post) => {
+      return {
+        ...post.get({ plain: true }),
+        date_created: moment(post.date_created).format('MMMM Do, YYYY')}
+      });
 
     // Pass serialized data and session flag into template
-    res.render('homepage', { 
-      posts, 
+    res.render('homepage', {
+      posts,
       logged_in: req.session.logged_in,
-      dashboard_link: '/dashboard',
-      login_link: '/login'
+      dashboard_link: '/homepage',
+      logout_link: '/logout',
     });
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
+// Handler for the login page
 router.get('/login', (req, res) => {
-  // If the user is already logged in, redirect the request to another route
-  if (req.session.logged_in) {
-    res.redirect('/dashboard');
-    return;
-  }
-
-  res.render('login', {
-    homepage_link: '/',
-    dashboard_link: '/dashboard'
-  });
+  // Render the login template
+  res.render('login');
 });
+
+router.use('/api', apiRoutes);
+router.use('/post', postRoutes);
 
 module.exports = router;

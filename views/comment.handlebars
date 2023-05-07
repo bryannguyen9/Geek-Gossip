@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Comment</title>
+  </head>
+  <body>
+    <div class="container mt-5">
+        <h2>{{title}}</h2>
+        <p class="text-muted">Posted by {{user.name}} on {{moment(date_created).format('MMMM Do, YYYY')}}</p>
+        <hr>
+        <p>{{content}}</p>
+            {{#if logged_in}}
+                <hr>
+                <h3>Add a comment:</h3>
+                <form action="/post/{{id}}/comment" method="POST">
+                <div class="form-group">
+                    <label for="comment_text">Comment:</label>
+                    <textarea class="form-control" id="comment_text" name="comment_text" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            {{/if}}
+            {{#each comments}}
+                <hr>
+                <p>{{this.comment_text}}</p>
+                <p class="text-muted">Comment by {{this.user.name}} on {{moment(this.date_created).format('MMMM Do, YYYY')}}</p>
+            {{/each}}
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  </body>
+</html>

@@ -1,24 +1,33 @@
-<!-- nav bar -->
-<div class="navbar">
-  <a href="{{dashboard_link}}">Dashboard</a>
-  {{#if logged_in}}
-    <a href="/logout">Logout</a>
-  {{else}}
-    <a href="{{login_link}}">Login</a>
-  {{/if}}
-</div>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Homepage</title>
+  </head>
+  <body>
+    <!-- nav bar -->
+    <div class="navbar">
+      <a href="{{dashboard_link}}">Dashboard</a>
+      {{#if logged_in}}
+        <a href="{{logout_link}}">Logout</a>
+      {{else}}
+        <a href="{{login_link}}">Login</a>
+      {{/if}}
+    </div>
 
-<!-- Loop over each object in the post array -->
-{{#each post as |post| }}
-<div class="row mb-4 post">
-  <div class="col-md-5">
-    <div class="d-flex justify-content-between">
-      <h2>{{post.title}}</h2>
-      <p>Created by {{post.user.name}} on {{format_date post.date_created}}</p>
+    <!-- Loop over each object in the post array -->
+    {{#each post as |post| }}
+    <div class="row mb-4 post">
+      <div class="col-md-5">
+        <div class="d-flex justify-content-between">
+          <h2>{{post.title}}</h2>
+          <p>Created by {{post.user.name}} on {{post.date_created}}</p>
+        </div>
+        <div>
+          <p>{{post.description}}</p>
+        </div>
+      </div>
     </div>
-    <div>
-      <p>{{post.description}}</p>
-    </div>
-  </div>
-</div>
-{{/each}}
+    {{/each}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  </body>
+</html>
