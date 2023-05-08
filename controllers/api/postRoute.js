@@ -2,72 +2,137 @@ const router = require('express').Router();
 const { Post, User, Comment } = require('../../models');
 const withAuth = require('../../utils/auth');
 const moment = require('moment');
-//require sequelize
+const sequelize = require('../../config/connection');
 
-router.get('/post/:id', withAuth, async (req, res) => {
-  try {
-    const postData = await Post.findByPk(req.params.id, {
-      include: [
-        {
-          model: User,
-          attributes: ['name'],
-        },
-        {
-          model: Comment,
-          attributes: ['id', 'comment_content', 'user_id', 'post_id', 'created_at'],
-          include: {
-            model: User,
-            attributes: ['name'],
-          },
-          // format created_at timestamp using Moment.js
-          order: [['created_at', 'ASC']],
-          attributes: [
-            'id',
-            'comment_content',
-            'user_id',
-            'post_id',
-            [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE comment.id = vote.comment_id)'), 'vote_count'],
-            'created_at',
-            [sequelize.literal(`(SELECT IFNULL(VALUE, 0) FROM vote WHERE comment.id = vote.comment_id AND vote.user_id = ${req.session.user_id})`), 'user_vote']
-          ],
-          // add a formatted_created_at virtual property to each comment object
-          // using Moment.js to format the timestamp
-          // example format: May 7th 2023, 5:28:12 pm
-          include: [
-            [
-              sequelize.literal(`DATE_FORMAT(comment.created_at, '%M %D %Y, %h:%i:%s %p')`),
-              'formatted_created_at',
-            ],
-          ],
-        },
+router.get('/', (req, res) => {
+  console.log('======================');
+  Post.findAll({
+      attributes: [
+          'id',
+          'title',
+          'created_at',
+          'post_content'
       ],
+    order: [['created_at', 'DESC']],
+    include: [
+      // Comment model here -- attached username to comment
+      {
+        model: Comment,
+        attributes: ['id', 'comment_content', 'post_id', 'user_id', 'created_at'],
+        include: {
+          model: User,
+          attributes: ['username', 'github']
+        }
+      },
+      {
+        model: User,
+        attributes: ['username', 'github']
+      },
+    ]
+  })
+    .then(dbPostData => res.json(dbPostData))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
     });
+});
 
-    if (!postData) {
-      res.status(404).json({ message: 'No post found with this id' });
-      return;
+// get route for single post
+router.get('/:id', (req, res) => {
+  Post.findOne({
+    where: {
+      id: req.params.id
+    },
+    attributes: [
+      'id',
+      'title',
+      'created_at',
+      'post_content'
+    ],
+    include: [
+      {
+        model: Comment,
+        attributes: ['id', 'comment_content', 'post_id', 'user_id', 'created_at'],
+        include: {
+          model: User,
+          attributes: ['username', 'github']
+        }
+      },
+      {
+        model: User,
+        attributes: ['username', 'github']
+      }
+    ]
+  })
+    .then(dbPostData => {
+      if (!dbPostData) {
+        res.status(404).json({ message: 'No post found with this id' });
+        return;
+      }
+      res.json(dbPostData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
+
+// post route for creating post
+router.post('/', withAuth, (req, res) => {
+  Post.create({
+    title: req.body.title,
+    post_content: req.body.post_content,
+    user_id: req.session.user_id
+  })
+    .then(dbPostData => res.json(dbPostData))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
+
+// put route for updating post content
+router.put('/:id', withAuth, (req, res) => {
+  Post.update({
+      title: req.body.title,
+      post_content: req.body.post_content
+    },
+    {
+      where: {
+        id: req.params.id
+      }
+    })
+    .then(dbPostData => {
+      if (!dbPostData) {
+        res.status(404).json({ message: 'No post found with this id' });
+        return;
+      }
+      res.json(dbPostData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
+
+// delete route for deleting posts
+router.delete('/:id', withAuth, (req, res) => {
+  Post.destroy({
+    where: {
+      id: req.params.id
     }
-
-    const post = postData.get({ plain: true });
-
-    // format post created_at using Moment.js
-    post.formatted_created_at = moment(post.created_at).format('MMMM Do YYYY, h:mm:ss a');
-
-    // format each comment's created_at using Moment.js
-    post.comments = post.comments.map((comment) => {
-      return {
-        ...comment,
-        formatted_created_at: moment(comment.created_at).format('MMMM Do YYYY, h:mm:ss a'),
-      };
+  })
+    .then(dbPostData => {
+      if (!dbPostData) {
+        res.status(404).json({ message: 'No post found with this id' });
+        return;
+      }
+      res.json(dbPostData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
     });
-
-    res.render('post', {
-      ...post,
-      logged_in: req.session.logged_in,
-    });
-  } catch (err) {
-    res.status(500).json(err);
-  }
 });
 
 module.exports = router;

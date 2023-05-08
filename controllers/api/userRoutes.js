@@ -1,63 +1,105 @@
 const router = require('express').Router();
-const { User } = require('../../models');
+const { User, Post, Comment } = require('../../models');
 const withAuth = require('../../utils/auth');
 
-router.post('/login', async (req, res) => {
-  try {
+// get route for api/users
+router.get('/', (req, res) => {
+  // get all from User model
+  User.findAll({
+    attributes: { exclude: ['password']}
+  })
+  .then(dbUserData => res.json(dbUserData))
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  });
+});
+
+// get route for api/users/id
+router.get('/:id', (req, res) => {
+  User.findOne({
+      attributes: { exclude: ['password']},
+      where: {
+        id: req.params.id
+      },
+      include: [
+          {
+            model: Post,
+            attributes: ['id', 'title', 'post_content', 'created_at']
+          },
+          {
+              model: Comment,
+              attributes: ['id', 'comment_content', 'created_at'],
+              include: {
+                model: Post,
+                attributes: ['title']
+              }
+          }
+        ]
+
+  })
+    .then(dbUserData => {
+      if (!dbUserData) {
+        res.status(404).json({ message: 'No user found with this id' });
+        return;
+      }
+      res.json(dbUserData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
+
+// post route for /api/users
+router.post('/', (req, res) => {
+  User.create({
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password,
+    github: req.body.github
+  })
+  .then(dbUserData => {
+    req.session.save(() => {
+      req.session.user_id = dbUserData.id;
+      req.session.username = dbUserData.username;
+      req.session.github = dbUserData.github;
+      req.session.loggedIn = true;
+
+      req.json(dbUserData);
+    });
+  });
+});
+
+// login post route when user logs in
+router.post('/login', (req, res) => {
     // Find the user who matches the posted e-mail address
-    const userData = await User.findOne({ where: { email: req.body.email } });
+    User.findOne({ where: { email: req.body.email }
+     }).then(dbUserData => {
+      if (!dbUserData) {
+        res.status(400).json({ message: 'Cannot find user with that email address!' });
+        return;
+      }
+      const validPassword = dbUserData.checkPassword(req.body.password);
 
-    if (!userData) {
-      res
-        .status(400)
-        .json({ message: 'Incorrect email or password, please try again' });
-      return;
-    }
+      if (!validPassword){
+        res.status(400).json({ message: 'Incorrect Password!' });
+        return;
+      }
 
-    // Verify the posted password with the password store in the database
-    const validPassword = await userData.checkPassword(req.body.password);
+      req.session.save(() => {
+        req.session.user_id = dbUserData.id;
+        req.session.username = dbUserData.username;
+        req.session.github = dbUserData.github;
+        req.session.loggedIn = true;
 
-    if (!validPassword) {
-      res
-        .status(400)
-        .json({ message: 'Incorrect email or password, please try again' });
-      return;
-    }
-
-    // Create session variables based on the logged in user
-    req.session.save(() => {
-      req.session.user_id = userData.id;
-      req.session.logged_in = true;
-      
-      res.json({ user: userData, message: 'You are now logged in!' });
-    });
-
-  } catch (err) {
-    res.status(400).json(err);
-  }
+        res.json({ user: dbUserData, message: 'You are now logged in!' });
+      });
+     });
 });
 
-// Signup route
-router.post('/signup', async (req, res) => {
-  try {
-    const userData = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-    });
-
-    req.session.save(() => {
-      req.session.user_id = userData.id;
-      req.session.logged_in = true;
-
-      res.json({ user: userData, message: 'You are now signed up and logged in!' });
-    });
-  } catch (err) {
-    res.status(400).json(err);
-  }
-});
-
-router.post('/logout', withAuth, (req, res) => {
+// logout route for destroying session data
+router.post('/logout', (req, res) => {
   if (req.session.logged_in) {
     // Remove the session variables
     req.session.destroy(() => {
@@ -68,8 +110,45 @@ router.post('/logout', withAuth, (req, res) => {
   }
 });
 
-module.exports = router;
+// put route for /api/users/1
+router.put('/:id', withAuth, (req, res) => {
+  User.update(req.body, {
+      individualHooks: true,
+      where: {
+          id: req.params.id
+    }
+  })
+    .then(dbUserData => {
+      if (!dbUserData[0]) {
+        res.status(404).json({ message: 'No user found with this id' });
+        return;
+      }
+      res.json(dbUserData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
 
-//create
-//login
-//logout
+// delete route for /api/users/1
+router.delete('/:id', withAuth, (req, res) => {
+  User.destroy({
+    where: {
+      id: req.params.id
+    }
+  })
+    .then(dbUserData => {
+      if (!dbUserData) {
+        res.status(404).json({ message: 'No user found with this id' });
+        return;
+      }
+      res.json(dbUserData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
+
+module.exports = router;
