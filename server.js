@@ -36,19 +36,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Add a new route to handle the home page
-app.get('/', async (req, res) => {
-  try {
-    res.render('homepage', {
-      logged_in: req.session.logged_in,
-      dashboard_link: '/dashboard',
-      logout_link: '/logout',
-    });
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
-
 app.use(routes);
 
 sequelize.sync({ force: false }).then(() => {

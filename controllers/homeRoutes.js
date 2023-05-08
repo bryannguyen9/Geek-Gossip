@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { Post, User } = require('../models');
 const withAuth = require('../utils/auth');
 const apiRoutes = require('./api');
-const postRoutes = require('./postRoute');
+const postRoutes = require('./api/postRoute');
 const moment = require('moment');
 
 // Handler for the home page that always renders the homepage template
@@ -17,7 +17,6 @@ router.get('/', async (req, res) => {
         },
       ],
     });
-  
 
     // Serialize data so the template can read it
     const posts = postData.map((post) => {
@@ -29,14 +28,16 @@ router.get('/', async (req, res) => {
     // Pass serialized data and session flag into template
     res.render('homepage', {
       posts,
+      homepage_link: '/',
       logged_in: req.session.logged_in,
-      dashboard_link: '/homepage',
+      dashboard_link: '/dashboard',
       logout_link: '/logout',
     });
   } catch (err) {
     res.status(500).json(err);
   }
 });
+
 
 // Handler for the login page
 router.get('/login', (req, res) => {

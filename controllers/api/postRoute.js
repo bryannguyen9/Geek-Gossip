@@ -1,7 +1,8 @@
 const router = require('express').Router();
-const { Post, User, Comment } = require('../models');
-const withAuth = require('../utils/auth');
+const { Post, User, Comment } = require('../../models');
+const withAuth = require('../../utils/auth');
 const moment = require('moment');
+//require sequelize
 
 router.get('/post/:id', withAuth, async (req, res) => {
   try {
