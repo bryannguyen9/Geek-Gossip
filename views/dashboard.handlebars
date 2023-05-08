@@ -1,0 +1,21 @@
+    <div class="row mb-4 post">
+        <a href="/dashboard/create/"><button id="create-post" class="button is-primary is-pulled-right">Create Post</button></a>
+        
+        <h2 class="title mb-4">Your Dashboard</h2><hr>
+        <h3 class="title mb-4">Your Posts</h3><hr>
+    
+    <!-- Loop over each object in the post array -->
+    {{#if posts.length}}
+    </div>
+    {{#each
+     post as |post| }}
+     {{> post-info post}}
+
+      <a href="/dashboard/edit/{{post.id}}"><button class="button mb-5 ml-5 is-warning">edit post</button></a>
+        </div>
+    {{/each}}
+
+    {{else}}
+    <h6 class="pb-4 has-text-centered is-italic">you do not currently have any posts</h6>
+
+    {{/if}}
