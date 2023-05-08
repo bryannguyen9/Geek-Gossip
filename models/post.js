@@ -1,15 +1,7 @@
 const {Model, DataTypes} = require('sequelize')
 const sequelize = require('../config/connection.js')
 
-class Post extends Model{
-    createdOnDate(){
-        const currentDate = new Date()
-        const day = currentDate.getDate()
-        const month = currentDate.getMonth()
-        const year = currentDate.getFullYear()
-        return `${month}/${day}/${year}`
-    }
-}
+class Post extends Model{}
 
 Post.init(
     {
@@ -23,7 +15,7 @@ Post.init(
             type: DataTypes.STRING,
             allowNull: false
         },
-        contents: {
+        post_content: {
             type: DataTypes.STRING,
             allowNull: false
         },
@@ -49,4 +41,4 @@ Post.init(
     }
 )
 
-module.exports = Post
+module.exports = Post;
