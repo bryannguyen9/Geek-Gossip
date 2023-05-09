@@ -1,45 +1,29 @@
 const { User } = require('../models');
 
-const userData =
-[
+const userData = [
     {
-      "name": "Sal",
-      "email": "sal@hotmail.com",
-      "password": "password12345",
-      "github": "github.com/sal"
+        username: "bryannguyen9",
+        twitter: "twitter.com/bryannguyen9",
+        github: "github.com/bryannguyen9",
+        email: "bryannguyen9@yahoo.com",
+        password: "password123"
     },
     {
-      "name": "Lernantino",
-      "email": "lernantino@gmail.com",
-      "password": "password12345",
-      "github": "github.com/lernantino"
+        username: "davidvo",
+        twitter: "twitter.com/daevidvo",
+        github: "github.com/daevidvo",
+        email: "daevidvo@gmail.com",
+        password: "password123"
     },
     {
-      "name": "Amiko",
-      "email": "amiko2k20@aol.com",
-      "password": "password12345",
-      "github": "github.com/amiko"
-    },
-    {
-      "name": "Jordan",
-      "email": "jordan99@msn.com",
-      "password": "password12345",
-      "github": "github.com/jordan"
-    },
-    {
-      "name": "Blake",
-      "email": "the_blake@yahoo.com",
-      "password": "password12345",
-      "github": "github.com/blake"
+        username: "davidchung",
+        twitter: "twitter.com/davidchung",
+        github: "github.com/davidchung",
+        email: "dchung13@gmail.com",
+        password: "password123"
     }
-    {
-      "name": "Bryan",
-      "email": "bryannguyen9@yahoo.com",
-      "password": "password12345",
-      "github": "github.com/bryannguyen9"
-    }
-  ]
+]
 
-  const seedUsers = () => User.bulkCreate(userData);
-  module.exports = seedUsers;
-  
+const seedUsers = () => User.bulkCreate(userData);
+
+module.exports = seedUsers;
