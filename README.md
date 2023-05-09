@@ -1,121 +1,193 @@
-# 14 Model-View-Controller (MVC): Tech Blog
+# Geek Gossip
 
-## Your Task
+## Description
 
-Writing about tech can be just as important as making it. Developers spend plenty of time creating new applications and debugging existing codebases, but most developers also spend at least some of their time reading and writing about technical concepts, recent advancements, and new technologies. A simple Google search for any concept covered in this course returns thousands of think pieces and tutorials from developers of all skill levels!
+This is Geek Gossip, a blog post application that allows users to post and share different thoughts and ideas that they might have. This application allows users to create an account and log in, see their own personal dashboard with their past posts, create posts, edit posts, as well as comment on other users posts. It also shows posts with other people's usernames and the date it was created.
 
-Your task this week is to build a CMS-style blog site similar to a Wordpress site, where developers can publish their blog posts and comment on other developers’ posts as well. You’ll build this site completely from scratch and deploy it to Heroku. Your app will follow the MVC paradigm in its architectural structure, using Handlebars.js as the templating language, Sequelize as the ORM, and the express-session npm package for authentication.
-
-## User Story
-
-```md
-AS A developer who writes about tech
-I WANT a CMS-style blog site
-SO THAT I can publish articles, blog posts, and my thoughts and opinions
-```
-
-## Acceptance Criteria
-
-```md
-GIVEN a CMS-style blog site
-WHEN I visit the site for the first time
-THEN I am presented with the homepage, which includes existing blog posts if any have been posted; navigation links for the homepage and the dashboard; and the option to log in
-WHEN I click on the homepage option
-THEN I am taken to the homepage
-WHEN I click on any other links in the navigation
-THEN I am prompted to either sign up or sign in
-WHEN I choose to sign up
-THEN I am prompted to create a username and password
-WHEN I click on the sign-up button
-THEN my user credentials are saved and I am logged into the site
-WHEN I revisit the site at a later time and choose to sign in
-THEN I am prompted to enter my username and password
-WHEN I am signed in to the site
-THEN I see navigation links for the homepage, the dashboard, and the option to log out
-WHEN I click on the homepage option in the navigation
-THEN I am taken to the homepage and presented with existing blog posts that include the post title and the date created
-WHEN I click on an existing blog post
-THEN I am presented with the post title, contents, post creator’s username, and date created for that post and have the option to leave a comment
-WHEN I enter a comment and click on the submit button while signed in
-THEN the comment is saved and the post is updated to display the comment, the comment creator’s username, and the date created
-WHEN I click on the dashboard option in the navigation
-THEN I am taken to the dashboard and presented with any blog posts I have already created and the option to add a new blog post
-WHEN I click on the button to add a new blog post
-THEN I am prompted to enter both a title and contents for my blog post
-WHEN I click on the button to create a new blog post
-THEN the title and contents of my post are saved and I am taken back to an updated dashboard with my new blog post
-WHEN I click on one of my existing posts in the dashboard
-THEN I am able to delete or update my post and taken back to an updated dashboard
-WHEN I click on the logout option in the navigation
-THEN I am signed out of the site
-WHEN I am idle on the page for more than a set time
-THEN I am automatically signed out of the site
-```
+[My Live Site](https://sleepy-springs-08377.herokuapp.com/)
 
 ## Mock-Up
 
-The following animation demonstrates the application functionality:
+### The following is an example of what the user might see once logged in:
 
-![Animation cycles through signing into the app, clicking on buttons, and updating blog posts.](./Assets/14-mvc-challenge-demo-01.gif)
+![homepage](./Assets/categoryget.png)
 
-## Getting Started
+## Table of Contents
 
-Your application’s folder structure must follow the Model-View-Controller paradigm. You’ll need to use the [express-handlebars](https://www.npmjs.com/package/express-handlebars) package to implement Handlebars.js for your Views, use the [MySQL2](https://www.npmjs.com/package/mysql2) and [Sequelize](https://www.npmjs.com/package/sequelize) packages to connect to a MySQL database for your Models, and create an Express.js API for your Controllers.
+- [Installation](#installation)
+- [Code Example](#code-example)
+- [Usage](#usage)
+- [Learning Points](#learning-points)
+- [Author Info](#author-info)
+- [Credits](#credits)
+- [License](#license)
 
-You’ll also need the [dotenv package](https://www.npmjs.com/package/dotenv) to use environment variables, the [bcrypt package](https://www.npmjs.com/package/bcrypt) to hash passwords, and the [express-session](https://www.npmjs.com/package/express-session) and [connect-session-sequelize](https://www.npmjs.com/package/connect-session-sequelize) packages to add authentication.
+## Installation
 
-## Grading Requirements
+### For running my live-site:
 
-This challenge is graded based on the following criteria:
+1. \* [My Live Site](https://sleepy-springs-08377.herokuapp.com/)
 
-### Technical Acceptance Criteria: 40%
+### For running it on a local server:
 
-- Satisfies all of the preceding acceptance criteria plus the following:
+1. Clone down the repository or download all files within repository
+2. You will need to install node.js
+3. You will need to edit the .env file to the database, user, and password that you use for SQL.
+4. Run the SQL shell within VS code to instantiate your schema.sql by typing in terminal:
 
-  - Application’s folder structure follows the Model-View-Controller paradigm.
+```
+mysql -u root -p
+```
 
-  - Uses the [express-handlebars](https://www.npmjs.com/package/express-handlebars) package to implement Handlebars.js for your Views.
+5. Instantiate the seeds by typing in terminal:
 
-  - Application must be deployed to Heroku.
+```
+npm run seed
+```
 
-### Deployment: 32%
+6. Open terminal within VS Code and type 'node server.js'
+7. Load up the local host url port using the port you set ( I set it at 3001 or use an app like insomnia to test different api routes for getting, creating, and updating data)
+8. You might need to install these packages: sequelize, mysql2, express, dotenv.
 
-- Application deployed at live URL.
+```
+npm i sequelize
 
-- Application loads with no errors.
+npm i mysql2
 
-- Application GitHub URL submitted.
+npm i express
 
-- GitHub repository contains application code.
+npm i dotenv
+```
 
-### Application Quality: 15%
+## Code Example
 
-- User experience is intuitive and easy to navigate.
+Here is an example of my get route for getting all posts and rendering it to the homepage:
 
-- User interface style is clean and polished.
+```javascript
+router.get("/", (req, res) => {
+  console.log(req.session);
 
-- Application resembles the mock-up functionality provided in the challenge instructions.
+  Post.findAll({
+    attributes: ["id", "title", "created_at", "post_content"],
+    include: [
+      {
+        model: Comment,
+        attributes: ["id", "comment_text", "post_id", "user_id", "created_at"],
+        include: {
+          model: User,
+          attributes: ["username", "twitter", "github"],
+        },
+      },
+      {
+        model: User,
+        attributes: ["username", "twitter", "github"],
+      },
+    ],
+  })
+    .then((dbPostData) => {
+      const posts = dbPostData.map((post) => post.get({ plain: true }));
+      res.render("homepage", {
+        posts,
+        loggedIn: req.session.loggedIn,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
+```
 
-### Repository Quality: 13%
+## Usage
 
-- Repository has a unique name.
+### Here you can see how I access the terminal within VS Code:
 
-- Repository follows best practices for file structure and naming conventions.
+![Accessing terminal](./Assets/accessterminal.png)
 
-- Repository follows best practices for class/id naming conventions, indentation, quality comments, etc.
+### Here you can see what I input into the terminal to initalize the application:
 
-- Repository contains multiple descriptive commit messages.
+![Terminal Input Screenshot](./Assets/terminalinput.png)
 
-- Repository contains quality readme file with description, screenshot, and link to deployed application.
+### Here you can see that after the 'node server.js' input you should be able to see that the server is now listening:
 
-## Review
+![Terminal Output Screenshot](./Assets/terminaloutput.png)
 
-You are required to submit BOTH of the following for review:
+### Here is an example of what can be an expected output from using the api/categories route which will get all data currently seeded in:
 
-- The URL of the functional, deployed application.
+![Get Categories](./Assets/categoryget.png)
 
-- The URL of the GitHub repository, with a unique name and a readme describing the project.
+### Here is an example of creating a new category:
 
----
+![Add New Category](./Assets/newcategoryadd.png)
+![Add New Category](./Assets/newcategoryadd1.png)
 
-© 2023 edX Boot Camps LLC. Confidential and Proprietary. All Rights Reserved.
+### Here is an example of updating that new category's name:
+
+![Update New Category](./Assets/newcategoryupdate.png)
+![Update New Category](./Assets/newcategoryupdate1.png)
+
+### Here is an example of deleting that new category:
+
+![Delete New Category](./Assets/newcategorydelete.png)
+![Delete New Category](./Assets/newcategorydelete1.png)
+
+## Learning Points
+
+This project taught me a lot and solidified my knowledge of node.js as well as using different express packages like dotenv, mysql, and sequelize that created this application and allowed it to flourish. It provided me with different use cases of mySQL within javascript functionalities and applications. I really have solidified my knowledge in creating a full-stack application through this project. This taught me the entire flow of a full-stack application from the server.js to the connection.js, to the models, to the routes, and to the handlebars. It really allowed me to see how all the puzzle pieces fit together and create an application that has multiple different views and can store things not only in local storage but in sessions and in databases.
+
+## About Me
+
+Hi, my name is Bryan Nguyen I am an up and coming full-stack web developer working
+on getting into the space with projects that support both my growth, belief, and imagination. I hope to one day work within the realm of AI, web-development, and even site-reliability/cyber-security.
+
+## My links
+
+### \* [Portfolio](https://bryannguyen9.github.io/Bryan-Nguyen-Portfolio/)
+
+### \* [LinkedIn](https://linkedin.com/in/bryannguyen9)
+
+### \* [Github](https://github.com/bryannguyen9)
+
+## Credits
+
+### Special thanks to David Chung:
+
+- [David Chung's Github](https://github.com/dchung13/)
+- [David Chung's LinkedIn](https://www.linkedin.com/in/david-chung-77141526b/)
+- [David Chung's Portfolio](https://dchung13.github.io/David-Chung-Portfolio/)
+
+### Special thanks to these reference websites that taught me different functionalities within my website for me to create a seamless experience for users.
+
+1. [Stack Overflow](https://stackoverflow.com/questions/64220107/passing-sql-queries-into-inquirer-prompt)
+2. [NpmJS for mysql2](https://www.npmjs.com/package/mysql2)
+3. [NpmJS for inquirer](https://www.npmjs.com/package/inquirer)
+
+## License
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+This project is licensed under the MIT License.
+
+MIT License
+
+    Copyright (c) [2023] [Bryan Nguyen]
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+For further details on the MIT License you can click on this link: [Link to MIT License Details](https://opensource.org/license/mit/)
