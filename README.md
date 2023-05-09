@@ -10,7 +10,7 @@ This is Geek Gossip, a blog post application that allows users to post and share
 
 ### The following is an example of what the user might see once logged in:
 
-![homepage](./Assets/categoryget.png)
+![homepage](./Assets/homepage.png)
 
 ## Table of Contents
 
@@ -100,36 +100,31 @@ router.get("/", (req, res) => {
 
 ## Usage
 
-### Here you can see how I access the terminal within VS Code:
+### Here you can see the homepage of the application with different options to see including past posts if there are any:
 
-![Accessing terminal](./Assets/accessterminal.png)
+![homepage](./Assets/homepage.png)
 
-### Here you can see what I input into the terminal to initalize the application:
+### Here you can see the login page:
 
-![Terminal Input Screenshot](./Assets/terminalinput.png)
+![Login](./Assets/login.png)
 
-### Here you can see that after the 'node server.js' input you should be able to see that the server is now listening:
+### Here you can see the signup page:
 
-![Terminal Output Screenshot](./Assets/terminaloutput.png)
-
-### Here is an example of what can be an expected output from using the api/categories route which will get all data currently seeded in:
-
-![Get Categories](./Assets/categoryget.png)
-
-### Here is an example of creating a new category:
-
-![Add New Category](./Assets/newcategoryadd.png)
+![signup](./Assets/signup.png)
 ![Add New Category](./Assets/newcategoryadd1.png)
 
-### Here is an example of updating that new category's name:
+### Here you can see a user creating and editing a post:
 
-![Update New Category](./Assets/newcategoryupdate.png)
-![Update New Category](./Assets/newcategoryupdate1.png)
+![create post](./Assets/createpost.png)
+![edit post](./Assets/editpost.png)
 
-### Here is an example of deleting that new category:
+### Here is an example of the dashboard after creating a post you can see your past notes:
 
-![Delete New Category](./Assets/newcategorydelete.png)
-![Delete New Category](./Assets/newcategorydelete1.png)
+![user dashboard](./Assets/dashboard.png)
+
+### Here you can see you are able to comment on posts as well:
+
+![commenting](./Assets/comment.png)
 
 ## Learning Points
 
